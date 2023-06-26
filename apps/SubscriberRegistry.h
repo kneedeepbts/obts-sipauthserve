@@ -29,8 +29,8 @@
 #include <map>
 #include <stdlib.h>
 //#include <Logger.h>
-#include <Timeval.h>
-#include <Threads.h>
+#include "Timeval.h"
+#include "Threads.h"
 #include <map>
 #include <string>
 #include "sqlite3.h"

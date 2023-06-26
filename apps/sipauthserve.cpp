@@ -25,8 +25,8 @@
 
 #include <cstdlib>
 
-//#include <arpa/inet.h>
-//#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 #include <ctype.h>
 #include <errno.h>
@@ -52,20 +52,9 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "cpptoml.h"
 
-#include <Globals.h>
+//#include "Globals.h"
 #include "servershare.h"
 #include "SubscriberRegistry.h"
-
-
-// ### FIXME: Put this back to arpa/inet.h as this is just to get it to compile on teh winderps.
-struct sockaddr_in {
-    uint8_t	sin_len;
-    sa_family_t	sin_family;
-    in_port_t	sin_port;
-    struct	in_addr sin_addr;
-    char	sin_zero[8];
-};
-// ### END FIXME
 
 using namespace std;
 
@@ -309,6 +298,8 @@ main(int argc, char **argv)
 {
     /*** Parse CLI Arguments ***/
     // TODO: Properly parse and handle any arguments
+    //extern const char *gVersionString;
+    const char *gVersionString = "FIXME: Change the way this version stuff works";
     if (argc > 1) {
         for (int argi = 0; argi < argc; argi++) {
             if (!strcmp(argv[argi], "--version") ||
