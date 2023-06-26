@@ -52,9 +52,8 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "cpptoml.h"
 
-//#include "Globals.h"
 #include "servershare.h"
-#include "SubscriberRegistry.h"
+#include "../subscriber_registry/SubscriberRegistry.h"
 
 using namespace std;
 

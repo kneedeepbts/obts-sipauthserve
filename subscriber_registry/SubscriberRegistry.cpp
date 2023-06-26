@@ -34,6 +34,10 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm> // for sort()
+
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
+#include "spdlog/spdlog.h"
+
 //#include <Configuration.h>
 
 //extern ConfigurationTable gConfig;
@@ -170,7 +174,8 @@ static const char* createMEMSBTable = {
     ")"
 };
 
-#define CONFIG_SUBSCRIBER_REGISTRY_LOCATION "/var/lib/asterisk/sqlite3dir/sqlite3.db"
+//#define CONFIG_SUBSCRIBER_REGISTRY_LOCATION "/var/lib/asterisk/sqlite3dir/sqlite3.db"
+#define CONFIG_SUBSCRIBER_REGISTRY_LOCATION "./sqlite3.db"
 #define CONFIG_SQL_NUM_RETRIES 3
 
 int SubscriberRegistry::init()
@@ -180,7 +185,7 @@ int SubscriberRegistry::init()
 	size_t p = ldb.find_last_of('/');
 	if (p == string::npos) {
 		//LOG(EMERG) << "SubscriberRegistry.db not in a directory?";
-		spdlog::critical("SubscriberRegistry.db not in a directory?");
+		SPDLOG_CRITICAL("SubscriberRegistry.db not in a directory?");
 		mDB = NULL;
 		return 1;
 	}
@@ -188,7 +193,7 @@ int SubscriberRegistry::init()
 	struct stat buf;
 	if (stat(dir.c_str(), &buf)) {
 		//LOG(EMERG) << dir << " does not exist";
-		spdlog::critical("{} does not exist", dir);
+        SPDLOG_CRITICAL("{} does not exist", dir);
 		mDB = NULL;
 		return 1;
 	}
@@ -197,57 +202,57 @@ int SubscriberRegistry::init()
 	int rc = sqlite3_open(ldb.c_str(),&mDB);
 	if (rc) {
 		//LOG(EMERG) << "Cannot open SubscriberRegistry database: " << ldb << " error: " << sqlite3_errmsg(mDB);
-		spdlog::critical("Cannot open SubscriberRegistry database: {} - error: {}", ldb, sqlite3_errmsg(mDB));
+        SPDLOG_CRITICAL("Cannot open SubscriberRegistry database: {} - error: {}", ldb, sqlite3_errmsg(mDB));
 		sqlite3_close(mDB);
 		mDB = NULL;
 		return 1;
 	}
 	if (!sqlite3_command(mDB,createRRLPTable,mNumSQLTries)) {
 		//LOG(EMERG) << "Cannot create RRLP table";
-		spdlog::critical("Cannot create RRLP table");
+        SPDLOG_CRITICAL("Cannot create RRLP table");
 		return 1;
 	}
 	if (!sqlite3_command(mDB,createDDTable,mNumSQLTries)) {
 		//LOG(EMERG) << "Cannot create DIALDATA_TABLE table";
-		spdlog::critical("Cannot create DIALDATA_TABLE table");
+        SPDLOG_CRITICAL("Cannot create DIALDATA_TABLE table");
 		return 1;
 	}
 	if (!sqlite3_command(mDB,createRateTable,mNumSQLTries)) {
 		//LOG(EMERG) << "Cannot create rate table";
-		spdlog::critical("Cannot create rate table");
+        SPDLOG_CRITICAL("Cannot create rate table");
 		return 1;
 	}
 	if (!sqlite3_command(mDB,createSBTable,mNumSQLTries)) {
 		//LOG(EMERG) << "Cannot create SIP_BUDDIES table";
-		spdlog::critical("Cannot create SIP_BUDDIES table");
+        SPDLOG_CRITICAL("Cannot create SIP_BUDDIES table");
 		return 1;
 	}
 	// Set high-concurrency WAL mode.
 	if (!sqlite3_command(mDB,enableWAL,mNumSQLTries)) {
 		//LOG(EMERG) << "Cannot enable WAL mode on database at " << ldb << ", error message: " << sqlite3_errmsg(mDB);
-		spdlog::critical("Cannot enable WAL mode on database at {}, error message: {}", ldb, sqlite3_errmsg(mDB));
+        SPDLOG_CRITICAL("Cannot enable WAL mode on database at {}, error message: {}", ldb, sqlite3_errmsg(mDB));
 	}
 
 #ifndef SR_API_ONLY
 	// memory based sip_buddies table
 	if (!sqlite3_command(mDB,"attach database ':memory:' as memcache",mNumSQLTries)) {
 		//LOG(EMERG) << "Cannot create memcache database";
-		spdlog::critical("Cannot create memcache database");
+        SPDLOG_CRITICAL("Cannot create memcache database");
 		return 1;
 	}
 	if (!sqlite3_command(mDB,createMEMSBTable,mNumSQLTries)) {
 		//LOG(EMERG) << "Cannot create memcache mem_sip_buddies table";
-		spdlog::critical("Cannot create memcache mem_sip_buddies table");
+        SPDLOG_CRITICAL("Cannot create memcache mem_sip_buddies table");
 		return 1;
 	}
 	if (!sqlite3_command(mDB,"INSERT INTO mem_sip_buddies SELECT username, ipaddr, port, rand, sres FROM sip_buddies",mNumSQLTries)) {
 		//LOG(EMERG) << "Cannot populate mem_sip_buddies table with disk contents";
-		spdlog::critical("Cannot populate mem_sip_buddies table with disk contents");
+        SPDLOG_CRITICAL("Cannot populate mem_sip_buddies table with disk contents");
 		return 1;
 	}
 	if (!sqlite3_command(mDB,"ALTER TABLE mem_sip_buddies ADD dirty INTEGER DEFAULT 0",mNumSQLTries)) {
 		//LOG(EMERG) << "Cannot add dirty column to mem_sip_buddies table";
-		spdlog::critical("Cannot add dirty column to mem_sip_buddies table");
+        SPDLOG_CRITICAL("Cannot add dirty column to mem_sip_buddies table");
 		return 1;
 	}
 

@@ -1,0 +1,2 @@
+add_executable(test_subscriber_registry test.cpp)
+target_link_libraries(test_subscriber_registry libsubreg)

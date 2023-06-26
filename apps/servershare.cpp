@@ -29,13 +29,13 @@
 #include <fstream>
 #include <cstdlib>
 //#include <Configuration.h>
-#include "Utils.h"
+#include "../subscriber_registry/Utils.h"
 #include <string.h>
 
 #include "servershare.h"
-#include "sqlite3.h"
+//#include "sqlite3.h"
 //#include "Logger.h"
-#include "SubscriberRegistry.h"
+#include "../subscriber_registry/SubscriberRegistry.h"
 
 #include <array>
 #include "milenage.h"
